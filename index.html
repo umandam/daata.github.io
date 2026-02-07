@@ -1,384 +1,101 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Hello-world landing page with FAQ." />
-  <title>Your Project</title>
+  <title>דף נחיתה</title>
+  <meta name="description" content="דף נחיתה מינימלי בעברית עם FAQ ורקע פיזיקלי." />
 
-  <!-- Optional: nicer font -->
+  <!-- Optional: nice Hebrew font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      /* Palette */
-      --bg0: #070A12;
-      --bg1: #0B1024;
-      --ink: #EAF0FF;
-      --muted: rgba(234,240,255,.72);
-      --faint: rgba(234,240,255,.12);
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.09);
-      --accent: #7C5CFF;
-      --accent2:#38E8FF;
-      --good: #32D583;
-
-      /* Type scale */
-      --h1: clamp(2.2rem, 4.2vw, 3.4rem);
-      --h2: clamp(1.2rem, 2.4vw, 1.6rem);
-      --body: clamp(1.0rem, 1.2vw, 1.05rem);
-      --small: 0.95rem;
-
-      --radius: 18px;
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-    }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin: 0;
-      color: var(--ink);
-      font: 400 var(--body)/1.55 "Space Grotesk", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 15% 10%, rgba(124,92,255,.25), transparent 55%),
-                  radial-gradient(900px 700px at 85% 25%, rgba(56,232,255,.22), transparent 55%),
-                  radial-gradient(900px 700px at 55% 90%, rgba(50,213,131,.14), transparent 55%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x: hidden;
-    }
-
-    /* Subtle noise overlay */
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .10;
-      background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-      mix-blend-mode: overlay;
-    }
-
-    a{ color: inherit; text-decoration: none; }
-    .wrap{
-      width: min(1080px, calc(100% - 40px));
-      margin: 0 auto;
-      padding: 46px 0 80px;
-      position: relative;
-    }
-
-    header{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 42px;
-    }
-
-    .brand{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      letter-spacing: .2px;
-    }
-    .logo{
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      background:
-        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.9), transparent 55%),
-        linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 30px rgba(124,92,255,.25);
-    }
-    .brand b{ font-weight: 700; }
-    .nav{
-      display: flex;
-      gap: 14px;
-      color: var(--muted);
-      font-size: .95rem;
-    }
-    .nav a{
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-    }
-    .nav a:hover{
-      border-color: var(--faint);
-      background: rgba(255,255,255,.04);
-      color: var(--ink);
-    }
-
-    .hero{
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 22px;
-      align-items: start;
-      margin-bottom: 34px;
-    }
-    @media (max-width: 900px){
-      .hero{ grid-template-columns: 1fr; }
-    }
-
-    .panel{
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.03));
-      border: 1px solid var(--faint);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      backdrop-filter: blur(10px);
-    }
-
-    h1{
-      margin: 0 0 12px;
-      font-size: var(--h1);
-      line-height: 1.08;
-      letter-spacing: -0.8px;
-    }
-    .subtitle{
-      margin: 0 0 18px;
-      color: var(--muted);
-      max-width: 64ch;
-    }
-
-    .ctaRow{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-    .btn{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-weight: 600;
-      border: 1px solid var(--faint);
-      background: rgba(255,255,255,.05);
-      color: var(--ink);
-      transition: transform .08s ease, background .15s ease, border-color .15s ease;
-      user-select: none;
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.07);
-      border-color: rgba(255,255,255,.18);
-    }
-    .btn.primary{
-      border-color: transparent;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #06101A;
-    }
-    .btn.primary:hover{
-      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(56,232,255,.95));
-    }
-
-    .badge{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: .95rem;
-      color: var(--muted);
-      border: 1px solid var(--faint);
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.03);
-      margin-bottom: 14px;
-      width: fit-content;
-    }
-    .dot{
-      width: 9px; height: 9px; border-radius: 99px;
-      background: var(--good);
-      box-shadow: 0 0 0 4px rgba(50,213,131,.12);
-    }
-
-    .facts{
-      display: grid;
-      gap: 12px;
-    }
-    .fact{
-      border-radius: 14px;
-      border: 1px solid var(--faint);
-      background: rgba(255,255,255,.03);
-      padding: 14px 14px;
-    }
-    .fact b{ display:block; margin-bottom: 6px; }
-    .fact p{ margin: 0; color: var(--muted); font-size: var(--small); }
-
-    /* FAQ */
-    .sectionTitle{
-      display:flex; align-items: baseline; justify-content: space-between;
-      margin: 26px 0 12px;
-      gap: 12px;
-    }
-    .sectionTitle h2{
-      margin: 0;
-      font-size: var(--h2);
-      letter-spacing: -0.2px;
-    }
-    .sectionTitle span{ color: var(--muted); font-size: .95rem; }
-
-    .faq{
-      display: grid;
-      gap: 12px;
-    }
-    details{
-      border-radius: 16px;
-      border: 1px solid var(--faint);
-      background: rgba(255,255,255,.03);
-      overflow: hidden;
-    }
-    summary{
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-weight: 600;
-    }
-    summary::-webkit-details-marker{ display:none; }
-    .chev{
-      width: 10px; height: 10px;
-      border-right: 2px solid rgba(234,240,255,.75);
-      border-bottom: 2px solid rgba(234,240,255,.75);
-      transform: rotate(45deg);
-      transition: transform .15s ease;
-      margin-right: 2px;
-      flex: 0 0 auto;
-    }
-    details[open] summary{ background: rgba(255,255,255,.04); }
-    details[open] .chev{ transform: rotate(225deg); }
-    .answer{
-      padding: 0 16px 16px;
-      color: var(--muted);
-      font-weight: 400;
-      max-width: 78ch;
-    }
-
-    footer{
-      margin-top: 34px;
-      color: rgba(234,240,255,.55);
-      font-size: .92rem;
-      display:flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      color: rgba(234,240,255,.6);
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div><b>Your Project</b><div class="mono" style="font-size:.85rem; opacity:.85;">hello-world landing</div></div>
-      </div>
+  <!-- Physics canvas lives behind everything -->
+  <div id="bg-layer" aria-hidden="true"></div>
 
-      <nav class="nav">
-        <a href="#faq">FAQ</a>
-        <a href="#contact">Contact</a>
-        <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
-      </nav>
-    </header>
+  <main class="wrap">
+    <section class="card hero">
+      <div class="kicker">דף נחיתה מינימלי</div>
+      <h1>כותרת לדוגמה בעברית שמרגישה רצינית</h1>
+      <p class="intro">
+        פה יופיע טקסט פתיחה קצר. שתי–שלוש שורות שמספרות מה זה הדבר הזה, למה הוא קיים,
+        ואיך הוא אמור לגרום למישהו להרגיש שהוא הגיע למקום הנכון.
+      </p>
 
-    <section class="hero">
-      <div class="panel">
-        <div class="badge"><span class="dot"></span> Live. Minimal. Surprisingly intentional.</div>
-        <h1>A tiny page with big posture.</h1>
-        <p class="subtitle">
-          This is a clean GitHub Pages landing page: a single file, a strong look, and an FAQ that
-          expands like curiosity. Replace the text, keep the vibe.
-        </p>
-
-        <div class="ctaRow">
-          <a class="btn primary" href="#faq">Read the FAQ</a>
-          <a class="btn" href="mailto:you@example.com">Email</a>
-          <a class="btn" href="https://github.com/" target="_blank" rel="noreferrer">View Repo</a>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="facts">
-          <div class="fact">
-            <b>Fast setup</b>
-            <p>Commit <span class="mono">index.html</span>. Enable Pages. Done.</p>
-          </div>
-          <div class="fact">
-            <b>Customizable</b>
-            <p>Colors, fonts, sizes, layout all in one place.</p>
-          </div>
-          <div class="fact">
-            <b>No JS required</b>
-            <p>FAQ uses native <span class="mono">&lt;details&gt;</span> for zero-fuss behavior.</p>
-          </div>
-        </div>
+      <div class="cta-row">
+        <a class="btn primary" href="#faq">לקריאת שאלות נפוצות</a>
+        <a class="btn" href="#">כפתור נוסף</a>
       </div>
     </section>
 
-    <div class="sectionTitle" id="faq">
-      <h2>FAQ</h2>
-      <span>short answers, minimal drama</span>
-    </div>
+    <section class="card" id="faq">
+      <h2>שאלות נפוצות</h2>
 
-    <section class="faq">
-      <details open>
-        <summary>
-          Do I paste this into README.md?
-          <i class="chev" aria-hidden="true"></i>
-        </summary>
-        <div class="answer">
-          No. README is not your site. Put this in <span class="mono">index.html</span> in the folder GitHub Pages is serving.
-        </div>
-      </details>
+      <div class="faq">
+        <details open>
+          <summary>
+            מה זה בכלל?
+            <span class="chev" aria-hidden="true"></span>
+          </summary>
+          <div class="answer">
+            זה דף נחיתה דוגמה: טקסט, FAQ, ורקע חי שמוסיף תנועה בלי לגנוב את ההצגה.
+          </div>
+        </details>
 
-      <details>
-        <summary>
-          How do I change the background + fonts?
-          <i class="chev" aria-hidden="true"></i>
-        </summary>
-        <div class="answer">
-          Edit the <span class="mono">:root</span> variables at the top (colors, sizes), and the Google Fonts link if you want a different font.
-        </div>
-      </details>
+        <details>
+          <summary>
+            למה האותיות נופלות ברקע?
+            <span class="chev" aria-hidden="true"></span>
+          </summary>
+          <div class="answer">
+            כי לפעמים מינימליזם צריך נשימה. שכבת Matter.js מאחורי התוכן יוצרת תחושה חיה ועדינה.
+          </div>
+        </details>
 
-      <details>
-        <summary>
-          Can I add more FAQ items?
-          <i class="chev" aria-hidden="true"></i>
-        </summary>
-        <div class="answer">
-          Copy one <span class="mono">&lt;details&gt;...&lt;/details&gt;</span> block and replace the text. That’s it.
-        </div>
-      </details>
+        <details>
+          <summary>
+            אפשר לשנות צבעים וטיפוגרפיה?
+            <span class="chev" aria-hidden="true"></span>
+          </summary>
+          <div class="answer">
+            כן. הכול יושב ב־<code>styles.css</code>: רקע, גדלים, צבע טקסט, מרווחים, והצללות.
+          </div>
+        </details>
 
-      <details>
-        <summary>
-          How do I use a custom domain?
-          <i class="chev" aria-hidden="true"></i>
-        </summary>
-        <div class="answer">
-          In your repo’s Pages settings, add your domain. Then add the recommended DNS records at your domain registrar.
-        </div>
-      </details>
+        <details>
+          <summary>
+            איך מוסיפים עוד שאלות?
+            <span class="chev" aria-hidden="true"></span>
+          </summary>
+          <div class="answer">
+            מעתיקים בלוק אחד של <code>&lt;details&gt;</code>, משנים כותרת ותשובה, וממשיכים הלאה.
+          </div>
+        </details>
+
+        <details>
+          <summary>
+            זה עובד גם במובייל?
+            <span class="chev" aria-hidden="true"></span>
+          </summary>
+          <div class="answer">
+            כן. התוכן נשאר קריא מעל הרקע, והקנבס מתכוונן אוטומטית למסך.
+          </div>
+        </details>
+      </div>
     </section>
 
-    <footer id="contact">
-      <div>© <span id="y"></span> Your Name. Built on stubborn simplicity.</div>
-      <div class="mono">Replace everything. Keep what works.</div>
+    <footer class="footer">
+      <span>© <span id="year"></span> דוגמה. כל הזכויות שמורות למי שבאמת יעשה משהו עם זה.</span>
     </footer>
-  </div>
+  </main>
 
-  <script>
-    // tiny convenience; remove if you want pure no-js
-    document.getElementById("y").textContent = new Date().getFullYear();
-  </script>
+  <!-- Matter.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
