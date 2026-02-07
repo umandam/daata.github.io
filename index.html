@@ -1,76 +1,228 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>דף נחיתה</title>
+  <title>Letters Physics</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: #f3efe6; /* beige */
+      overflow: hidden;
+      font-family: Heebo, system-ui, sans-serif;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Tiny status badge so you can see if JS/Matter is running */
+    #dbg {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font: 700 12px/1 Heebo, system-ui, sans-serif;
+      color: rgba(0,0,0,.65);
+      user-select: none;
+      z-index: 10;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Background physics layer -->
-  <div id="bg-layer" aria-hidden="true">
-    <canvas id="matter-canvas"></canvas>
-    <div id="matter-debug" aria-hidden="true">Matter: …</div>
-  </div>
+  <div id="dbg">starting…</div>
 
-  <main class="wrap">
-    <section class="card hero">
-      <div class="kicker">דף נחיתה מינימלי</div>
-      <h1>כותרת לדוגמה בעברית שמרגישה רצינית</h1>
-      <p class="intro">
-        פה יופיע טקסט פתיחה קצר. שתי–שלוש שורות שמספרות מה זה הדבר הזה, למה הוא קיים,
-        ואיך הוא אמור לגעבעעכעיכעיעכעיכיעכיעכעיכש שהוא הגיע למקום הנכון.
-      </p>
-
-      <div class="cta-row">
-        <a class="btn primary" href="#faq">לקריאת שאלות נפוצות</a>
-        <a class="btn" href="#">כפתור נוסף</a>
-      </div>
-    </section>
-
-    <section class="card" id="faq">
-      <h2>שאלות נפוצות</h2>
-
-      <div class="faq">
-        <details open>
-          <summary>מה זה בכלל?<span class="chev" aria-hidden="true"></span></summary>
-          <div class="answer">זה דף נחיתה דוגמה: טקסט, FAQ, ורקע חי שמוסיף תנועה בלי לגנוב את ההצגה.</div>
-        </details>
-
-        <details>
-          <summary>למה האותיות נופלות ברקע?<span class="chev" aria-hidden="true"></span></summary>
-          <div class="answer">כי לפעמים מינימליזם צריך נשימה. שכבת Matter.js מאחורי התוכן יוצרת תחושה חיה ועדינה.</div>
-        </details>
-
-        <details>
-          <summary>אפשר לשנות צבעים וטיפוגרפיה?<span class="chev" aria-hidden="true"></span></summary>
-          <div class="answer">כן. הכול יושב ב־<code>styles.css</code>: רקע, גדלים, צבע טקסט, מרווחים, והצללות.</div>
-        </details>
-
-        <details>
-          <summary>איך מוסיפים עוד שאלות?<span class="chev" aria-hidden="true"></span></summary>
-          <div class="answer">מעתיקים בלוק אחד של <code>&lt;details&gt;</code>, משנים כותרת ותשובה, וממשיכים הלאה.</div>
-        </details>
-
-        <details>
-          <summary>זה עובד גם במובייל?<span class="chev" aria-hidden="true"></span></summary>
-          <div class="answer">כן. התוכן נשאר קריא מעל הרקע, והקנבס מתכוונן אוטומטית למסך.</div>
-        </details>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <span>© <span id="year"></span> חיעחיעחיעחיע</span>
-    </footer>
-  </main>
-
+  <!-- Matter.js from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
-  <script src="./app.js"></script>
+  <script>
+    (function () {
+      const dbg = document.getElementById("dbg");
+
+      if (!window.Matter) {
+        dbg.textContent = "Matter not loaded (CDN blocked?)";
+        console.error("Matter.js not loaded");
+        return;
+      }
+
+      const {
+        Engine, Render, Runner, Bodies, Body, Composite, Events, Common, Mouse, MouseConstraint
+      } = Matter;
+
+      // Create engine
+      const engine = Engine.create();
+      engine.gravity.y = 1.05;
+
+      // Create canvas renderer
+      const render = Render.create({
+        element: document.body,
+        engine,
+        options: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          wireframes: false,
+          background: "#f3efe6" // beige
+        }
+      });
+
+      Render.run(render);
+      const runner = Runner.create();
+      Runner.run(runner, engine);
+
+      // Handle DPR properly (avoids invisible / blurry weirdness)
+      function setSize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        render.options.pixelRatio = dpr;
+
+        render.options.width = window.innerWidth;
+        render.options.height = window.innerHeight;
+
+        render.canvas.width = Math.floor(window.innerWidth * dpr);
+        render.canvas.height = Math.floor(window.innerHeight * dpr);
+        render.canvas.style.width = window.innerWidth + "px";
+        render.canvas.style.height = window.innerHeight + "px";
+
+        // Important: keep coordinate system in CSS pixels
+        render.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      // Walls
+      let walls = [];
+      function rebuildWalls() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        for (const b of walls) Composite.remove(engine.world, b);
+        const t = 100;
+
+        const floor = Bodies.rectangle(w/2, h + t/2, w + t*2, t, { isStatic: true });
+        const ceil  = Bodies.rectangle(w/2, -t/2, w + t*2, t, { isStatic: true });
+        const left  = Bodies.rectangle(-t/2, h/2, t, h + t*2, { isStatic: true });
+        const right = Bodies.rectangle(w + t/2, h/2, t, h + t*2, { isStatic: true });
+
+        walls = [floor, ceil, left, right];
+        Composite.add(engine.world, walls);
+      }
+
+      setSize();
+      rebuildWalls();
+
+      // Letters to drop (Hebrew + a few extras)
+      const LETTERS = "אבגדהוזחטיכלמנסעפצקרשת";
+
+      function spawnLetter() {
+        const w = window.innerWidth;
+
+        const ch = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+        const fontSize = Common.random(26, 74);
+        const r = fontSize * 0.55;
+
+        // Use circles for stable bouncing
+        const body = Bodies.circle(Common.random(40, w - 40), -80, r, {
+          restitution: Common.random(0.55, 0.9),
+          friction: 0.15,
+          frictionAir: 0.02,
+          density: 0.0028,
+          render: {
+            fillStyle: "rgba(255,255,255,0)", // invisible body
+            strokeStyle: "rgba(0,0,0,0)"
+          }
+        });
+
+        body.plugin = {
+          letter: ch,
+          fontSize,
+          ink: Math.random() < 0.9 ? "rgba(31,29,23,.35)" : "rgba(31,29,23,.22)"
+        };
+
+        Body.setVelocity(body, { x: Common.random(-2.6, 2.6), y: Common.random(0.2, 1.2) });
+        Body.setAngularVelocity(body, Common.random(-0.08, 0.08));
+
+        Composite.add(engine.world, body);
+      }
+
+      // Spawn loop
+      const MAX = 90;
+      setInterval(() => {
+        const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic && b.plugin?.letter);
+        if (bodies.length < MAX) spawnLetter();
+
+        const h = window.innerHeight;
+        for (const b of bodies) {
+          if (b.position.y > h + 600) Composite.remove(engine.world, b);
+        }
+      }, 320);
+
+      // Draw letters each frame
+      Events.on(render, "afterRender", () => {
+        const ctx = render.context;
+        const bodies = Composite.allBodies(engine.world);
+
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        for (const b of bodies) {
+          if (!b.plugin?.letter) continue;
+
+          ctx.translate(b.position.x, b.position.y);
+          ctx.rotate(b.angle);
+
+          ctx.fillStyle = b.plugin.ink;
+          ctx.font = `700 ${b.plugin.fontSize}px Heebo, system-ui, sans-serif`;
+          ctx.shadowColor = "rgba(31,29,23,.08)";
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetY = 6;
+
+          ctx.fillText(b.plugin.letter, 0, 0);
+
+          // Reset transform for next body
+          ctx.setTransform(render.options.pixelRatio, 0, 0, render.options.pixelRatio, 0, 0);
+        }
+
+        ctx.restore();
+      });
+
+      // Mouse drag (optional, but fun)
+      const mouse = Mouse.create(render.canvas);
+      const mc = MouseConstraint.create(engine, {
+        mouse,
+        constraint: { stiffness: 0.15, render: { visible: false } }
+      });
+      Composite.add(engine.world, mc);
+      render.mouse = mouse;
+
+      // Debug badge (shows it's alive)
+      let frames = 0, last = performance.now();
+      Events.on(render, "afterRender", () => {
+        frames++;
+        const now = performance.now();
+        if (now - last > 800) {
+          const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic && b.plugin?.letter).length;
+          const fps = Math.round((frames * 1000) / (now - last));
+          dbg.textContent = `running · bodies ${bodies} · ~${fps} fps`;
+          frames = 0;
+          last = now;
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        setSize();
+        rebuildWalls();
+      });
+
+      dbg.textContent = "running…";
+    })();
+  </script>
 </body>
 </html>
