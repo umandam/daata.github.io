@@ -4,9 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>דף נחיתה</title>
-  <meta name="description" content="דף נחיתה מינימלי בעברית עם FAQ ורקע פיזיקלי." />
 
-  <!-- Optional: nice Hebrew font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
@@ -15,8 +13,11 @@
 </head>
 
 <body>
-  <!-- Physics canvas lives behind everything -->
-  <div id="bg-layer" aria-hidden="true"></div>
+  <!-- Background physics layer -->
+  <div id="bg-layer" aria-hidden="true">
+    <canvas id="matter-canvas"></canvas>
+    <div id="matter-debug" aria-hidden="true">Matter: …</div>
+  </div>
 
   <main class="wrap">
     <section class="card hero">
@@ -38,63 +39,37 @@
 
       <div class="faq">
         <details open>
-          <summary>
-            מה זה בכלל?
-            <span class="chev" aria-hidden="true"></span>
-          </summary>
-          <div class="answer">
-            זה דף נחיתה דוגמה: טקסט, FAQ, ורקע חי שמוסיף תנועה בלי לגנוב את ההצגה.
-          </div>
+          <summary>מה זה בכלל?<span class="chev" aria-hidden="true"></span></summary>
+          <div class="answer">זה דף נחיתה דוגמה: טקסט, FAQ, ורקע חי שמוסיף תנועה בלי לגנוב את ההצגה.</div>
         </details>
 
         <details>
-          <summary>
-            למה האותיות נופלות ברקע?
-            <span class="chev" aria-hidden="true"></span>
-          </summary>
-          <div class="answer">
-            כי לפעמים מינימליזם צריך נשימה. שכבת Matter.js מאחורי התוכן יוצרת תחושה חיה ועדינה.
-          </div>
+          <summary>למה האותיות נופלות ברקע?<span class="chev" aria-hidden="true"></span></summary>
+          <div class="answer">כי לפעמים מינימליזם צריך נשימה. שכבת Matter.js מאחורי התוכן יוצרת תחושה חיה ועדינה.</div>
         </details>
 
         <details>
-          <summary>
-            אפשר לשנות צבעים וטיפוגרפיה?
-            <span class="chev" aria-hidden="true"></span>
-          </summary>
-          <div class="answer">
-            כן. הכול יושב ב־<code>styles.css</code>: רקע, גדלים, צבע טקסט, מרווחים, והצללות.
-          </div>
+          <summary>אפשר לשנות צבעים וטיפוגרפיה?<span class="chev" aria-hidden="true"></span></summary>
+          <div class="answer">כן. הכול יושב ב־<code>styles.css</code>: רקע, גדלים, צבע טקסט, מרווחים, והצללות.</div>
         </details>
 
         <details>
-          <summary>
-            איך מוסיפים עוד שאלות?
-            <span class="chev" aria-hidden="true"></span>
-          </summary>
-          <div class="answer">
-            מעתיקים בלוק אחד של <code>&lt;details&gt;</code>, משנים כותרת ותשובה, וממשיכים הלאה.
-          </div>
+          <summary>איך מוסיפים עוד שאלות?<span class="chev" aria-hidden="true"></span></summary>
+          <div class="answer">מעתיקים בלוק אחד של <code>&lt;details&gt;</code>, משנים כותרת ותשובה, וממשיכים הלאה.</div>
         </details>
 
         <details>
-          <summary>
-            זה עובד גם במובייל?
-            <span class="chev" aria-hidden="true"></span>
-          </summary>
-          <div class="answer">
-            כן. התוכן נשאר קריא מעל הרקע, והקנבס מתכוונן אוטומטית למסך.
-          </div>
+          <summary>זה עובד גם במובייל?<span class="chev" aria-hidden="true"></span></summary>
+          <div class="answer">כן. התוכן נשאר קריא מעל הרקע, והקנבס מתכוונן אוטומטית למסך.</div>
         </details>
       </div>
     </section>
 
     <footer class="footer">
-      <span>© <span id="year"></span> דוגמה. כל הזכויות שמורות למי שבאמת יעשה משהו עם זה.</span>
+      <span>© <span id="year"></span> דוגמה.</span>
     </footer>
   </main>
 
-  <!-- Matter.js from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
   <script src="./app.js"></script>
 </body>
