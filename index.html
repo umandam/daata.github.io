@@ -3,67 +3,90 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Letters Physics</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@700&display=swap" rel="stylesheet">
+  <title>SVG Letters Physics</title>
 
   <style>
     html, body { height: 100%; margin: 0; }
     body {
       background: #f3efe6; /* beige */
       overflow: hidden;
-      font-family: Heebo, system-ui, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-
-    canvas {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    /* Tiny status badge so you can see if JS/Matter is running */
     #dbg {
       position: fixed;
       left: 12px;
       bottom: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
       background: rgba(255,255,255,.65);
       border: 1px solid rgba(0,0,0,.12);
-      border-radius: 999px;
-      padding: 8px 10px;
-      font: 700 12px/1 Heebo, system-ui, sans-serif;
-      color: rgba(0,0,0,.65);
+      color: rgba(0,0,0,.6);
+      font: 600 12px/1.1 system-ui, sans-serif;
       user-select: none;
       z-index: 10;
     }
+    /* Hide the SVG definitions */
+    svg#glyphs { position: absolute; width: 0; height: 0; overflow: hidden; }
   </style>
 </head>
 
 <body>
   <div id="dbg">starting…</div>
 
-  <!-- Matter.js from CDN -->
+  <!-- SVG glyph definitions: stylized blocky "letters" as paths.
+       Replace these with real font outlines later if you want. -->
+  <svg id="glyphs" viewBox="0 0 200 200" aria-hidden="true">
+    <!-- "א" (stylized) -->
+    <path class="glyph" id="g-alef" d="M35 160 L70 40 L95 40 L65 160 Z
+                                     M110 160 L145 40 L170 40 L140 160 Z
+                                     M78 120 L155 120 L155 145 L73 145 Z" />
+    <!-- "ב" (stylized) -->
+    <path class="glyph" id="g-bet" d="M40 40 L140 40 L160 60 L160 140 L140 160 L40 160 Z
+                                     M70 70 L130 70 L130 130 L70 130 Z" />
+    <!-- "מ" (stylized) -->
+    <path class="glyph" id="g-mem" d="M40 55 L80 55 L80 145 L120 145 L120 55 L160 55
+                                     L160 160 L40 160 Z" />
+    <!-- "ש" (stylized) -->
+    <path class="glyph" id="g-shin" d="M40 50 L70 50 L70 160 L40 160 Z
+                                     M85 50 L115 50 L115 160 L85 160 Z
+                                     M130 50 L160 50 L160 160 L130 160 Z
+                                     M40 145 L160 145 L160 165 L40 165 Z" />
+    <!-- "ת" (stylized) -->
+    <path class="glyph" id="g-tav" d="M35 40 L165 40 L165 70 L115 70 L115 160 L85 160
+                                     L85 70 L35 70 Z" />
+  </svg>
+
+  <!-- Required for Matter.Svg in many browsers -->
+  <script src="https://cdn.jsdelivr.net/npm/pathseg@1.2.1/pathseg.min.js"></script>
+  <!-- Recommended for concave SVG decomposition -->
+  <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
+  <!-- Matter.js -->
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+
   <script>
     (function () {
       const dbg = document.getElementById("dbg");
 
       if (!window.Matter) {
-        dbg.textContent = "Matter not loaded (CDN blocked?)";
-        console.error("Matter.js not loaded");
+        dbg.textContent = "Matter not loaded (blocked?)";
         return;
       }
 
       const {
-        Engine, Render, Runner, Bodies, Body, Composite, Events, Common, Mouse, MouseConstraint
+        Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint,
+        Common, Svg
       } = Matter;
+
+      // Enable concave decomposition for Bodies.fromVertices
+      if (window.decomp && Matter.Common && Matter.Common.setDecomp) {
+        Matter.Common.setDecomp(window.decomp);
+      }
 
       // Create engine
       const engine = Engine.create();
       engine.gravity.y = 1.05;
 
-      // Create canvas renderer
+      // Create renderer
       const render = Render.create({
         element: document.body,
         engine,
@@ -71,7 +94,8 @@
           width: window.innerWidth,
           height: window.innerHeight,
           wireframes: false,
-          background: "#f3efe6" // beige
+          background: "#f3efe6",
+          pixelRatio: Math.min(window.devicePixelRatio || 1, 2)
         }
       });
 
@@ -79,146 +103,115 @@
       const runner = Runner.create();
       Runner.run(runner, engine);
 
-      // Handle DPR properly (avoids invisible / blurry weirdness)
-      function setSize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        render.options.pixelRatio = dpr;
-
-        render.options.width = window.innerWidth;
-        render.options.height = window.innerHeight;
-
-        render.canvas.width = Math.floor(window.innerWidth * dpr);
-        render.canvas.height = Math.floor(window.innerHeight * dpr);
-        render.canvas.style.width = window.innerWidth + "px";
-        render.canvas.style.height = window.innerHeight + "px";
-
-        // Important: keep coordinate system in CSS pixels
-        render.context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-
       // Walls
       let walls = [];
       function rebuildWalls() {
         const w = window.innerWidth;
         const h = window.innerHeight;
+        const t = 120;
 
         for (const b of walls) Composite.remove(engine.world, b);
-        const t = 100;
 
-        const floor = Bodies.rectangle(w/2, h + t/2, w + t*2, t, { isStatic: true });
-        const ceil  = Bodies.rectangle(w/2, -t/2, w + t*2, t, { isStatic: true });
-        const left  = Bodies.rectangle(-t/2, h/2, t, h + t*2, { isStatic: true });
-        const right = Bodies.rectangle(w + t/2, h/2, t, h + t*2, { isStatic: true });
-
-        walls = [floor, ceil, left, right];
+        walls = [
+          Bodies.rectangle(w/2, h + t/2, w + t*2, t, { isStatic: true }),
+          Bodies.rectangle(w/2, -t/2, w + t*2, t, { isStatic: true }),
+          Bodies.rectangle(-t/2, h/2, t, h + t*2, { isStatic: true }),
+          Bodies.rectangle(w + t/2, h/2, t, h + t*2, { isStatic: true })
+        ];
         Composite.add(engine.world, walls);
       }
-
-      setSize();
       rebuildWalls();
 
-      // Letters to drop (Hebrew + a few extras)
-      const LETTERS = "אבגדהוזחטיכלמנסעפצקרשת";
+      // Grab glyph paths
+      const glyphPaths = Array.from(document.querySelectorAll("#glyphs path.glyph"));
+      if (!glyphPaths.length) {
+        dbg.textContent = "No SVG paths found";
+        return;
+      }
 
-      function spawnLetter() {
-        const w = window.innerWidth;
+      // Convert a path to a physics body
+      function bodyFromPath(pathEl, x, y, scale = 0.55) {
+        // Sample vertices from SVG path
+        const verts = Svg.pathToVertices(pathEl, 18); // lower=coarser, higher=more detailed
+        // Scale vertices (SVG is in 200x200 units)
+        const scaled = verts.map(v => ({ x: v.x * scale, y: v.y * scale }));
 
-        const ch = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-        const fontSize = Common.random(26, 74);
-        const r = fontSize * 0.55;
+        // Create a body from (possibly concave) vertices
+        const body = Bodies.fromVertices(
+          x, y,
+          scaled,
+          {
+            restitution: Common.random(0.55, 0.9),
+            friction: 0.2,
+            frictionAir: 0.02,
+            render: {
+              fillStyle: "rgba(31,29,23,.22)",
+              strokeStyle: "rgba(31,29,23,.28)",
+              lineWidth: 1
+            }
+          },
+          true  // automatically flag internal edges
+        );
 
-        // Use circles for stable bouncing
-        const body = Bodies.circle(Common.random(40, w - 40), -80, r, {
-          restitution: Common.random(0.55, 0.9),
-          friction: 0.15,
-          frictionAir: 0.02,
-          density: 0.0028,
-          render: {
-            fillStyle: "rgba(255,255,255,0)", // invisible body
-            strokeStyle: "rgba(0,0,0,0)"
-          }
-        });
-
-        body.plugin = {
-          letter: ch,
-          fontSize,
-          ink: Math.random() < 0.9 ? "rgba(31,29,23,.35)" : "rgba(31,29,23,.22)"
-        };
-
-        Body.setVelocity(body, { x: Common.random(-2.6, 2.6), y: Common.random(0.2, 1.2) });
-        Body.setAngularVelocity(body, Common.random(-0.08, 0.08));
-
-        Composite.add(engine.world, body);
+        return body;
       }
 
       // Spawn loop
-      const MAX = 90;
-      setInterval(() => {
-        const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic && b.plugin?.letter);
-        if (bodies.length < MAX) spawnLetter();
+      const MAX = 45;
+      function spawn() {
+        const w = window.innerWidth;
+        const pick = glyphPaths[Math.floor(Math.random() * glyphPaths.length)];
 
+        const x = Common.random(80, w - 80);
+        const y = -120;
+
+        const b = bodyFromPath(pick, x, y, Common.random(0.45, 0.72));
+        if (!b) return;
+
+        Matter.Body.setVelocity(b, { x: Common.random(-2.6, 2.6), y: Common.random(0.2, 1.2) });
+        Matter.Body.setAngularVelocity(b, Common.random(-0.08, 0.08));
+
+        Composite.add(engine.world, b);
+      }
+
+      setInterval(() => {
+        const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic);
+        if (bodies.length < MAX) spawn();
+
+        // cleanup
         const h = window.innerHeight;
         for (const b of bodies) {
           if (b.position.y > h + 600) Composite.remove(engine.world, b);
         }
-      }, 320);
+      }, 420);
 
-      // Draw letters each frame
-      Events.on(render, "afterRender", () => {
-        const ctx = render.context;
-        const bodies = Composite.allBodies(engine.world);
-
-        ctx.save();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        for (const b of bodies) {
-          if (!b.plugin?.letter) continue;
-
-          ctx.translate(b.position.x, b.position.y);
-          ctx.rotate(b.angle);
-
-          ctx.fillStyle = b.plugin.ink;
-          ctx.font = `700 ${b.plugin.fontSize}px Heebo, system-ui, sans-serif`;
-          ctx.shadowColor = "rgba(31,29,23,.08)";
-          ctx.shadowBlur = 10;
-          ctx.shadowOffsetY = 6;
-
-          ctx.fillText(b.plugin.letter, 0, 0);
-
-          // Reset transform for next body
-          ctx.setTransform(render.options.pixelRatio, 0, 0, render.options.pixelRatio, 0, 0);
-        }
-
-        ctx.restore();
-      });
-
-      // Mouse drag (optional, but fun)
+      // Mouse drag
       const mouse = Mouse.create(render.canvas);
-      const mc = MouseConstraint.create(engine, {
+      const mouseConstraint = MouseConstraint.create(engine, {
         mouse,
-        constraint: { stiffness: 0.15, render: { visible: false } }
+        constraint: { stiffness: 0.14, render: { visible: false } }
       });
-      Composite.add(engine.world, mc);
+      Composite.add(engine.world, mouseConstraint);
       render.mouse = mouse;
 
-      // Debug badge (shows it's alive)
-      let frames = 0, last = performance.now();
-      Events.on(render, "afterRender", () => {
-        frames++;
-        const now = performance.now();
-        if (now - last > 800) {
-          const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic && b.plugin?.letter).length;
-          const fps = Math.round((frames * 1000) / (now - last));
-          dbg.textContent = `running · bodies ${bodies} · ~${fps} fps`;
-          frames = 0;
-          last = now;
-        }
+      // Resize
+      window.addEventListener("resize", () => {
+        render.options.width = window.innerWidth;
+        render.options.height = window.innerHeight;
+        rebuildWalls();
       });
 
-      window.addEventListener("resize", () => {
-        setSize();
-        rebuildWalls();
+      // Debug badge
+      let frames = 0, last = performance.now();
+      Matter.Events.on(render, "afterRender", () => {
+        frames++;
+        const now = performance.now();
+        if (now - last > 900) {
+          const bodies = Composite.allBodies(engine.world).filter(b => !b.isStatic).length;
+          const fps = Math.round((frames * 1000) / (now - last));
+          dbg.textContent = `running · bodies ${bodies} · ~${fps} fps`;
+          frames = 0; last = now;
+        }
       });
 
       dbg.textContent = "running…";
